@@ -16,3 +16,13 @@ Plugin是插件扩展器
 2、没有plugin，文件的打包过程可以完成
 3、plugin作用于整个打包过程，
 4、针对webpack的打包过程，他不直接操作文件，而是基于事件机制工作，会监听webpack打包过程的事件钩子，执行任务，通过事件钩子拦截webpack的执行。
+
+#### 3.Babel 的原理是什么?
+
+babel 的转译过程也分为三个阶段，这三步具体是:
+
+o 解析 Parse: 将代码解析生成抽象语法树( 即 AST )，即词法分析与语法分 析的过程
+
+o 转换 Transform: 对于 AST 进行变换一系列的操作，babel 接受得到 AST 并通过 babel-traverse 对其进行遍历，在此过程中进行添加、更新 及移除等操作
+
+o 生成 Generate: 将变换后的 AST 再转换为 JS 代码, 使用到的模块是 babel-generator

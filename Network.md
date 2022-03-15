@@ -53,6 +53,8 @@ TCP连接的重要目的，是为了保证消息的有序和不丢包，为了�
 
 ![](/Users/liangjiahao/Pictures/截图图库/77914997-52b7ed80-72c9-11ea-8662-a0541be71dca.png)
 
+从图片可以得到三次握手可以简化为:C 发起请求连接 S 确认，也发起连接 C 确认我们 再看看每次握手的作用:第一次握手:S 只可以确认 自己可以接受 C 发送的报文段第 二次握手:C 可以确认 S 收到了自己发送的报文段，并且可以确认 自己可以接受 S 发 送的报文段第三次握手:S 可以确认 C 收到了自己发送的报文段
+
 ##### HTTP请求与响应
 
 HTTP请求它主要发生在客户端，发送HTTP请求的过程就是构建HTTP请求报文并通过TCP协议发送到服务器指定端口的过程。
@@ -160,3 +162,255 @@ CDN的基本原理是广泛采用各种缓存服务器，将这些缓存服务�
 5、对于 resize、scroll 等进行防抖/节流处理。
 6、避免频繁读取会引发回流/重绘的属性，如果确实需要多次使用，就用一个变量缓存起来。
 7、利用 CSS3 的transform、opacity、filter这些属性可以实现合成的效果，也就是GPU加速。
+
+#### 12.说一下 http 和 https
+
+http 传输的数据都是未加密的，也就是明文的，网景公司设置了 SSL 协议来对 http 协议 传输的数据进行加密处理，简单来说 https 协议是由 http 和 ssl 协议构建的可进行加密传 输和身份认证的网络协议，比 http 协议的安全性更高。
+
+Https 协议需要 ca 证书，费用较高。
+ http 是超文本传输协议，信息是明文传输，https 则是具有安全性的 ssl 加密传输协议。 使用不同的链接方式，端口也不同，一般而言，http 协议的端口为 80，https 的端口为 443
+
+
+
+http 是明文传输，传输的所有内容（如登录的用户名和密码），都会被中间的代理商（无论合法还是非法）获取到。
+
+http + TLS/SSL = https ，即加密传输信息。只有客户端和服务端可以解密为明文，中间的过程无法解密。
+
+![](/Users/liangjiahao/Pictures/截图图库/https.png)
+
+中间人攻击
+
+中间人攻击，就是黑客劫持网络请求，伪造 CA 证书。
+
+![](/Users/liangjiahao/Pictures/截图图库/中间人攻击.png)
+
+解决方案：使用浏览器可识别的，正规厂商的证书（如阿里云），慎用免费证书。
+
+#### 13.TCP 和 UDP 的区别
+
+(1)TCP 是面向连接的，udp 是无连接的即发送数据前不需要先建立链接。
+ (2)TCP 提供可靠的服务。也就是说，通过 TCP 连接传送的数据，无差错，不丢失， 不重复，且按序到达;UDP 尽最大努力交付，即不保证可靠交付。 并且因为 tcp 可靠， 面向连接，不会丢失数据因此适合大数据量的交换。
+ (3)TCP 是面向字节流，UDP 面向报文，并且网络出现拥塞不会使得发送速率降低(因此会出现丢包，对实时的应用比如 IP 电话和视频会议等)。
+ (4)TCP 只能是 1 对 1 的，UDP 支持 1 对 1,1 对多。
+ (5)TCP 的首部较大为 20 字节，而 UDP 只有 8 字节。
+ (6)TCP 是面向连接的可靠性传输，而 UDP 是不可靠的。
+
+#### 14.websocket是什么
+
+WebSocket 是基于 Http 协议的，或者说借用了 Http 协议来完成一部分握手，在握手阶段 与 Http 是相同的。我们来看一个 websocket 握手协议的实现，基本是 2 个属性，upgrade， connection。
+ 基本请求如下:
+
+GET /chat HTTP/1.1
+ Host: server.example.com
+ Upgrade: websocket
+ Connection: Upgrade
+ Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw== Sec-WebSocket-Protocol: chat, superchat Sec-WebSocket-Version: 13
+ Origin: http://example.com
+ 多了下面 2 个属性:
+
+1 Upgrade:webSocket 2 Connection:Upgrade
+
+告诉服务器发送的是 websocket
+
+#### 15.补充 400 和 401、403 状态码
+
+(1)400 状态码:请求无效 产生原因:
+
+前端提交数据的字段名称和字段类型与后台的实体没有保持一致 前端提交到后台的数据应该是 json 字符串类型，但是前端没有将对象 JSON.stringify 转 化成字符串。
+ 解决方法:
+ 对照字段的名称，保持一致性
+ 将 obj 对象通过 JSON.stringify 实现序列化
+ (2)401 状态码:当前请求需要用户验证
+ (3)403 状态码:服务器已经得到请求，但是拒绝执行
+
+#### 16.fetch 发送 2 次请求的原因
+
+fetch 发送 post 请求的时候，总是发送 2 次，第一次状态码是 204，第二次才成功? 原因很简单，因为你用 fetch 的 post 请求的时候，导致 fetch 第一次发送了一个 Options 请求，询问服务器是否支持修改的请求头，如果服务器支持，则在第二次中发送真正的 请求
+
+#### 17.说一下 web worker
+
+在 HTML 页面中，如果在执行脚本时，页面的状态是不可相应的，直到脚本执行完成后， 页面才变成可相应。web worker 是运行在后台的 js，独立于其他脚本，不会影响页面你 的性能。并且通过 postMessage 将结果回传到主线程。这样在进行复杂操作的时候，就 不会阻塞主线程了。
+ 如何创建 web worker:
+ 检测浏览器对于 web worker 的支持性
+ 创建 web worker 文件(js，回传函数等)
+ 创建 web worker 对象
+
+#### 18.Cookie 如何防范 XSS 攻击
+
+XSS(跨站脚本攻击)是指攻击者在返回的 HTML 中嵌入 javascript 脚本，为了减轻这些 攻击，需要在 HTTP 头部配上，set-cookie:
+ httponly-这个属性可以防止 XSS,它会禁止 javascript 脚本来访问 cookie。
+ secure - 这个属性告诉浏览器仅在请求为 https 的时候发送 cookie。 结果应该是这样的:Set-Cookie=<cookie-value>.....
+
+#### 19.viewPort和移动端布局
+
+参考：https://github.com/forthealllight/blog/issues/13
+
+#### 20.click 在 ios 上有 300ms 延迟，原因及如何解决?
+
+(1)粗暴型，禁用缩放
+
+ <meta name="viewport" content="width=device-width, user-scalable=no">
+
+ (2)利用 FastClick，其原理是:
+ 检测到 touchend 事件后，立刻出发模拟 click 事件，并且把浏览器 300 毫秒之后真正出 发的事件给阻断掉
+
+#### 21.cookie sessionStorage localStorage 区别
+
+cookie 数据始终在同源的 http 请求中携带(即使不需要)，即 cookie 在浏览器和服务器间 来回传递
+
+可以设置name，value，domain（cookie 的域名），path（cookie 的页面路径），expires/Max-Age （cookie 超时时间）。
+
+http 字段 cookie 的 httponly 属性。若此属性为 true，则只有在 http 请求头中会带有此 cookie 的信息，而不能通过 document.cookie 来访问此 cookie。
+
+secure 字段 设置是否只能通过 https 来传递此条 cookie
+
+ cookie 数据还有路径(path)的概念，可以限制。cookie 只属于某个路径下 存储大小限制也不同，cookie 数据不能超过 4K，同时因为每次 http 请求都会携带 cookie， 所以 cookie 只适合保存很小的数据，如回话标识。
+ webStorage 虽然也有存储大小的限制，但是比 cookie 大得多，可以达到 5M 或更大 数据的有效期不同 sessionStorage:仅在当前的浏览器窗口关闭有效;localStorage:始终 有效，窗口或浏览器关闭也一直保存，因此用作持久数据;cookie:只在设置的 cookie 过期时间之前一直有效，即使窗口和浏览器关闭
+ 作用域不同 sessionStorage:不在不同的浏览器窗口中共享，即使是同一个页面; localStorage:在所有同源窗口都是共享的;cookie:也是在所有同源窗口中共享的
+
+#### 22.介绍知道的 http 返回的状态码
+
+**100** Continue 继续。客户端应继续其请求
+
+**101** Switching Protocols 切换协议。服务器根据客户端的请求切换协议。只能切换到更 高级的协议，例如，切换到 HTTP 的新版本协议
+
+**200**  OK 请求成功。一般用于 GET 与 POST 请求
+
+**201**  Created 已创建。成功请求并创建了新的资源
+
+**202**  Accepted 已接受。已经接受请求，但未处理完成
+
+**203**  Non-Authoritative Information 非授权信息。请求成功。但返回的 meta 信息不在原始的服务器，而是一个副本
+ 204 No Content 无内容。服务器成功处理，但未返回内容。在未更新网页的情况下， 可确保浏览器继续显示当前文档
+
+**205** Reset Content 重置内容。服务器处理成功，用户终端(例如:浏览器)应重置文 档视图。可通过此返回码清除浏览器的表单域
+**206** Partial Content 部分内容。服务器成功处理了部分 GET 请求
+**300** Multiple Choices 多种选择。请求的资源可包括多个位置，相应可返回一个资源特 征与地址的列表用于用户终端(例如:浏览器)选择
+
+**301** Moved Permanently 永久移动。请求的资源已被永久的移动到新 URI，返回信息会 包括新的 URI，浏览器会自动定向到新 URI。今后任何新的请求都应使用新的 URI 代替 302 Found 临时移动。与 301 类似。但资源只是临时被移动。客户端应继续使用原有 URI
+
+**303**  See Other 查看其它地址。与 301 类似。使用 GET 和 POST 请求查看
+
+**304**  Not Modified 未修改。所请求的资源未修改，服务器返回此状态码时，不会返回
+
+任何资源。客户端通常会缓存访问过的资源，通过提供一个头信息指出客户端希望只返 回在指定日期之后修改的资源
+
+**305**  Use Proxy 使用代理。所请求的资源必须通过代理访问
+
+**306**  Unused 已经被废弃的 HTTP 状态码
+
+**307**  Temporary Redirect 临时重定向。与 302 类似。使用 GET 请求重定向
+
+**400**  Bad Request 客户端请求的语法错误，服务器无法理解
+
+**401**  Unauthorized 请求要求用户的身份认证
+
+**402**  Payment Required 保留，将来使用
+
+**403**  Forbidden 服务器理解请求客户端的请求，但是拒绝执行此请求
+
+**404**  Not Found 服务器无法根据客户端的请求找到资源(网页)。通过此代码，网站
+
+设计人员可设置"您所请求的资源无法找到"的个性页面
+
+**405**  Method Not Allowed 客户端请求中的方法被禁止
+
+**406**  Not Acceptable 服务器无法根据客户端请求的内容特性完成请求
+
+**407**  Proxy Authentication Required 请求要求代理的身份认证，与 401 类似，但请求者
+
+应当使用代理进行授权
+
+**408**  Request Time-out 服务器等待客户端发送的请求时间过长，超时
+
+**409**  Conflict 服务器完成客户端的 PUT 请求是可能返回此代码，服务器处理请求时发
+
+生了冲突
+**410** Gone 客户端请求的资源已经不存在。410 不同于 404，如果资源以前有现在被永 久删除了可使用 410 代码，网站设计人员可通过 301 代码指定资源的新位置
+
+**411**  Length Required 服务器无法处理客户端发送的不带 Content-Length 的请求信息
+
+**412**  Precondition Failed 客户端请求信息的先决条件错误
+
+**413**  Request Entity Too Large 由于请求的实体过大，服务器无法处理，因此拒绝请求。
+
+为防止客户端的连续请求，服务器可能会关闭连接。如果只是服务器暂时无法处理，则 会包含一个 Retry-After 的响应信息
+
+**414**  Request-URI Too Large 请求的 URI 过长(URI 通常为网址)，服务器无法处理
+
+**415**  Unsupported Media Type 服务器无法处理请求附带的媒体格式
+
+**416**  Requested range not satisfiable 客户端请求的范围无效
+
+**417**  Expectation Failed 服务器无法满足 Expect 的请求头信息
+
+**500**  Internal Server Error 服务器内部错误，无法完成请求
+
+**501**  Not Implemented 服务器不支持请求的功能，无法完成请求
+
+**502**  Bad Gateway 作为网关或者代理工作的服务器尝试执行请求时，从远程服务器接收到了一个无效的响应
+
+**503** Service Unavailable 由于超载或系统维护，服务器暂时的无法处理客户端的请求。 延时的长度可包含在服务器的 Retry-After 头信息中
+
+**504** Gateway Time-out 充当网关或代理的服务器，未及时从远端服务器获取请求
+
+**505**  HTTP Version not supported 服务器不支持请求的 HTTP 协议的版本，无法完成处理
+
+#### 23.http常见的请求头
+
+| 协议头        | 说明                                                        |
+| ------------- | ----------------------------------------------------------- |
+| Accept        | 可接受的响应内容类型(Content-Types)                         |
+| Authorization | 用于表示 HTTP 协议中需要认证资源的认证信息                  |
+| Cache-Control | 用来指定当前的请求/回复中的，是否使用缓存机制。             |
+| Connection    | 客户端(浏览器)想要优先使用的连接类型                        |
+| Cookie        | 由之前服务器通过Set-Cooki(e 见下文)设置的一个HTTP协议Cookie |
+| Content-Type  | 请求体的 MIME 类型 (用于 POST 和 PUT 请求中)                |
+| User-Agent    | 浏览器的身份标识字符串                                      |
+
+#### 24.强，协商缓存
+
+缓存分为两种:强缓存和协商缓存，根据响应的 header 内容来决定。
+
+|          | 获取资源形式 | 状态码             | 发送请求到服务器                 |
+| -------- | ------------ | ------------------ | -------------------------------- |
+| 强缓存   | 从缓存取     | 200(from cache）   | 否，直接从缓存取                 |
+| 协商缓存 | 从缓存取     | 304(not modified） | 是，通过服务器来告知缓存是否可用 |
+
+强缓存相关字段有 expires，cache-control。如果 cache-control 与 expires 同时存在的话， cache-control 的优先级高于 expires。
+协商缓存相关字段有 Last-Modified/If-Modified-Since，Etag/If-None-Match
+
+cache-control 是一个通用消息头字段被用于 HTTP 请求和响应中，通过指定指令来实现 缓存机制，这个缓存指令是单向的，常见的取值有 private、no-cache、max-age、 must-revalidate 等，默认为 private
+
+304:如果客户端发送了一个带条件的 GET 请求且该请求已被允许，而文档的内容(自 上次访问以来或者根据请求的条件)并没有改变，则服务器应当返回这个 304 状态码。
+
+#### 25.强缓存、协商缓存什么时候用哪个
+
+因为服务器上的资源不是一直固定不变的，大多数情况下它会更新，这个时候如果我们 还访问本地缓存，那么对用户来说，那就相当于资源没有更新，用户看到的还是旧的资 源;所以我们希望服务器上的资源更新了浏览器就请求新的资源，没有更新就使用本地 的缓存，以最大程度的减少因网络请求而产生的资源浪费。
+
+​	![](/Users/liangjiahao/Pictures/截图图库/2926334056-56fe382bb7a63.webp)
+
+#### 26.GET 和 POST 的区别
+
+get 参数通过 url 传递，post 放在 request body 中。
+ get 请求在 url 中传递的参数是有长度限制的，而 post 没有。
+ get 比 post 更不安全，因为参数直接暴露在 url 中，所以不能用来传递敏感信息。 get 请求只能进行 url 编码，而 post 支持多种编码方式
+
+get 请求会浏览器主动 cache，而 post 支持多种编码方式。
+ get 请求参数会被完整保留在浏览历史记录里，而 post 中的参数不会被保留。
+ GET 和 POST 本质上就是 TCP 链接，并无差别。但是由于 HTTP 的规定和浏览器/服务器 的限制，导致他们在应用过程中体现出一些不同。
+ GET 产生一个 TCP 数据包;POST 产生两个 TCP 数据包。
+
+#### 27.浏览器在生成页面的时候，会生成那两颗树?
+
+构造两棵树，DOM 树和 CSSOM 规则树，当浏览器接收到服务器相应来的 HTML 文档后，会遍历文档节点，生成 DOM 树， CSSOM 规则树由浏览器解析 CSS 文件生成
+
+#### 28.csrf 和 xss 的网络攻击及防范
+
+CSRF:跨站请求伪造，可以理解为攻击者盗用了用户的身份，以用户的名义发送了恶 意请求，比如用户登录了一个网站后，立刻在另一个tab页面访问量攻击者用来制造攻击的网站，这个网站要求访问刚刚登陆的网站，并发送了一个恶意请求，这时候 CSRF 就产生了，比如这个制造攻击的网站使用一张图片，但是这种图片的链接却是可以修改 数据库的，这时候攻击者就可以以用户的名义操作这个数据库，防御方式的话:使用验 证码，检查 https 头部的 refer，使用 token XSS:跨站脚本攻击，是说攻击者通过注入恶意的脚本，在用户浏览网页的时候进行攻 击，比如获取 cookie，或者其他用户身份信息，可以分为存储型和反射型，存储型是攻 击者输入一些数据并且存储到了数据库中，其他浏览者看到的时候进行攻击，反射型的 话不存储在数据库中，往往表现为将攻击代码放在 url 地址的请求参数中，防御的话为 cookie 设置 httpOnly 属性，对用户的输入进行检查，进行特殊字符过滤。
+
+**描述：**
+
+XSS, 即为(Cross Site Scripting), 中文名为跨站脚本, 是发生在目标用户的浏览器层面 上的，当渲染 DOM 树的过程成发生了不在预期内执行的 JS 代码时，就发生了 XSS 攻击。 大多数 XSS 攻击的主要方式是嵌入一段远程或者第三方域上的 JS 代码。实际上是在目 标网站的作用域下执行了这段 JS 代码。
+ CSRF(Cross Site Request Forgery，跨站请求伪造)，字面理解意思就是在别的站点伪造 了一个请求。专业术语来说就是在受害者访问一个网站时，其 Cookie 还没有过期的情 况下，攻击者伪造一个链接地址发送受害者并欺骗让其点击，从而形成 CSRF 攻击。 XSS 防御的总体思路是:对输入(和 URL 参数)进行过滤，对输出进行编码。也就是对提 交的所有内容进行过滤，对 url 中的参数进行过滤，过滤掉会导致脚本执行的相关内容; 然后对动态输出到页面的内容进行 html 编码，使脚本无法在浏览器中执行。虽然对输 入过滤可以被绕过，但是也还是会拦截很大一部分的 XSS 攻击。
+ 防御CSRF 攻击主要有三种策略:验证 HTTPReferer 字段;在请求地址中添加 token 并 验证;在 HTTP 头中自定义属性并验证。
